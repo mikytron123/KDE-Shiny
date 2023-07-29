@@ -1,0 +1,6 @@
+KDEpy
+numpy
+plotly
+scipy
+shiny
+shinywidgets
