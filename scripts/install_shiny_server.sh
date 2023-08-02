@@ -27,8 +27,7 @@ apt_install \
     wget
 
 # Run dependency scripts
-source install_s6init.sh
-#/rocker_scripts/install_pandoc.sh
+source scripts/install_s6init.sh
 
 # Install Shiny server
 
@@ -40,8 +39,6 @@ wget --no-verbose "https://download3.rstudio.org/ubuntu-18.04/x86_64/shiny-serve
 gdebi -n ss-latest.deb
 rm ss-latest.deb
 
-# Get R packages
-#install2.r --error --skipinstalled -n "$NCPUS" shiny rmarkdown
 
 # Set up directories and permissions
 if [ -x "$(command -v rstudio-server)" ]; then
@@ -49,7 +46,6 @@ if [ -x "$(command -v rstudio-server)" ]; then
     adduser "${DEFAULT_USER}" shiny
 fi
 
-#cp -R /usr/local/lib/R/site-library/shiny/examples/* /srv/shiny-server/
 chown shiny:shiny /var/lib/shiny-server
 mkdir -p /var/log/shiny-server
 chown shiny:shiny /var/log/shiny-server
@@ -68,12 +64,9 @@ EOF
 chmod +x /etc/services.d/shiny-server/run
 
 # install init script
-cp /app/init_set_env.sh /etc/cont-init.d/01_set_env
+cp /app/scripts/init_set_env.sh /etc/cont-init.d/01_set_env
 
 # Clean up
 rm -rf /var/lib/apt/lists/*
 rm -rf /tmp/downloaded_packages
 
-## Strip binary installed lybraries from RSPM
-## https://github.com/rocker-org/rocker-versioned2/issues/340
-#strip /usr/local/lib/R/site-library/*/libs/*.so

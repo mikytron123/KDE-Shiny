@@ -12,9 +12,9 @@ ENV S6_VERSION=v2.1.0.2
 ENV SHINY_SERVER_VERSION=latest
 ENV PANDOC_VERSION=default
 
-RUN /app/install_shiny_server.sh
+RUN /app/scripts/install_shiny_server.sh
 
-EXPOSE 8000
+EXPOSE 3838
 
 RUN rm -rf /etc/shiny-server/shiny-server.conf \
     && cp /app/shiny-server.conf /etc/shiny-server/ \
