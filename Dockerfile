@@ -23,6 +23,3 @@ RUN rm -rf /etc/shiny-server/shiny-server.conf \
 
 ENTRYPOINT ["/init"]
 
-
-
-#ENTRYPOINT ["shiny", "run" , "app.py"]

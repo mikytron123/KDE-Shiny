@@ -1,20 +1,29 @@
-from shiny import App, render, ui,reactive,Inputs,Outputs,Session
-from scipy.stats import norm
+from shiny import App, ui,reactive,Inputs,Outputs,Session
+from scipy.stats import norm,uniform,cauchy,chi2
 import numpy as np
 import plotly.graph_objects as go
 from shinywidgets import output_widget, render_widget
 from KDEpy import FFTKDE
+
+
+dist_funcs = {"normal":norm(),
+              "uniform":uniform(),
+              "cauchy":cauchy(),
+              "chi-square":chi2(4)}
+
 
 app_ui = ui.page_fluid(
     ui.panel_title("kernel density plots"),
     ui.layout_sidebar(
         sidebar=ui.panel_sidebar(
             ui.input_slider("bw", "Bandwidth: ", min=0.001, max=1, value=0.1,step=0.01),
-            ui.input_select("kernel",label="Select kernel",
+            ui.input_selectize("kernel",label="Select kernel",
                     choices={'gaussian': 'Gaussian',
                             'biweight': 'Biweight',
                             'epa': 'Epanechnikov',
-                            'tri': 'Triangular'},selected="gaussian")
+                            'tri': 'Triangular'},selected="gaussian"),
+            ui.input_selectize("distribution",label="Select distribution",
+            choices = ["normal","uniform","cauchy","chi-square"])
             
         ),
 
@@ -26,26 +35,15 @@ app_ui = ui.page_fluid(
 def server(input:Inputs, output:Outputs, session:Session)->None:
 
     @reactive.Calc
-    def calc_density()-> tuple[np.array,np.array]: # type: ignore
-        data = norm().rvs(10000)
-        mod = FFTKDE(kernel=input.kernel(),bw=input.bw()).fit(data) # type: ignore
-        dens_x = np.linspace(start=np.min(data),stop=np.max(data),num=10000)
+    def calc_density()-> tuple[np.array,np.array]:
+        dist = input.distribution()
+        stat_gen = dist_funcs[dist]
+        data = stat_gen.rvs(10000)
+        mod = FFTKDE(kernel=input.kernel(),bw=input.bw()).fit(data)
         x, y = mod.evaluate()
         
-        # dens = sm.nonparametric.KDEUnivariate(data)
-        # fft=False
-        # if input.kernel()=="gau":
-        #     fft=True
-        # dens.fit(kernel=input.kernel(),fft=fft)
         return x,y
 
-
-
-
-    # @output
-    # @render.text
-    # def selected_choice():
-    #     return f"the kernel is {input.kernel()}"
     
     @output
     @render_widget
